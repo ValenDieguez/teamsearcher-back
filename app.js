@@ -86,6 +86,25 @@ app.get('/match/:id', function (req, res) {
     })
 });
 
+app.get('/matchTeam/:idTeam', function (req, res) {
+    var paramsId = req.params.idTeam;
+    var correctItem = [];
+    db.collection('match').get().then(querySnapshot => {
+        var objects = [];
+        querySnapshot.forEach(doc => {
+            var object = doc.data();
+            objects.push(object);
+        });
+
+        for (var item of objects) {
+            if (item.idTeam.toString() === paramsId) {
+                correctItem.push(item);
+            }
+        }
+        res.send(correctItem);
+    })
+});
+
 app.get('/map/:id', function (req, res) {
     var paramsId = req.params.id;
     var correctItem = null;
@@ -166,6 +185,17 @@ app.get('/games', function (req, res) {
 });
 
 app.get('/matches', function (req, res) {
+    db.collection('match').get().then(querySnapshot => {
+        var objects = [];
+        querySnapshot.forEach(doc => {
+            var object = doc.data();
+            objects.push(object);
+        })
+        res.send(objects);
+    })
+});
+
+app.get('/matchesTeam', function (req, res) {
     db.collection('match').get().then(querySnapshot => {
         var objects = [];
         querySnapshot.forEach(doc => {
