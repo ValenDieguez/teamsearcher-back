@@ -1,5 +1,6 @@
 // Express configuration
 const express = require('express');
+const cors = require('cors');
 const app = express();
 var router = express.Router();
 // Imports
@@ -7,6 +8,7 @@ const bodyParser = require('body-parser');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cors());
 
 // Configuration
 const config = require('./configuration.js').configuration();
@@ -214,6 +216,37 @@ app.post('/player', (req, res) => {
         res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
     });
 });
+
+app.post('/team/:id', (req, res) => {
+    db.collection('team').doc(req.body.id).set(req.body.data).then(ref => {
+        res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
+    });
+});
+
+app.post('/match/:id', (req, res) => {
+    db.collection('match').doc(req.body.id).set(req.body.data).then(ref => {
+        res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
+    });
+});
+
+app.post('/game/:id', (req, res) => {
+    db.collection('game').doc(req.body.id).set(req.body.data).then(ref => {
+        res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
+    });
+});
+
+app.post('/map/:id', (req, res) => {
+    db.collection('map').doc(req.body.id).set(req.body.data).then(ref => {
+        res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
+    });
+});
+
+app.post('/player/:id', (req, res) => {
+    db.collection('player').doc(req.body.id).set(req.body.data).then(ref => {
+        res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
+    });
+});
+
 
 app.delete('/playerDelete/:id', (req, res) => {
     db.collection('player').doc(req.params.id).delete()
