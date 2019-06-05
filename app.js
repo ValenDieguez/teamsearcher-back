@@ -5,6 +5,7 @@ const app = express();
 var router = express.Router();
 // Imports
 const bodyParser = require('body-parser');
+var id = 0;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -218,33 +219,23 @@ app.get('/maps', function (req, res) {
 });
 
 app.post('/team', (req, res) => {
-    db.collection('team').add(req.body).then(ref => {
-        res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
-    });
+    getFollowingId("team", req, res);
 });
 
 app.post('/match', (req, res) => {
-    db.collection('match').add(req.body).then(ref => {
-        res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
-    });
+    getFollowingId("match", req, res);
 });
 
 app.post('/game', (req, res) => {
-    db.collection('game').add(req.body).then(ref => {
-        res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
-    });
+   getFollowingId("game",  req, res);
 });
 
 app.post('/map', (req, res) => {
-    db.collection('map').add(req.body).then(ref => {
-        res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
-    });
+     getFollowingId("map", req, res);
 });
 
 app.post('/player', (req, res) => {
-    db.collection('player').add(req.body).then(ref => {
-        res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
-    });
+     getFollowingId("player", req, res);
 });
 
 app.post('/team/:id', (req, res) => {
@@ -314,14 +305,25 @@ app.delete('/teamDelete/:id', (req, res) => {
 });
 
 
-function postTeam() {
-    db.collection('team').doc(team).post()
+function getFollowingId(dataString, req , res) {
+let id=0;
+    db.collection(dataString).get().then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+            if (doc.data().id != null  && doc.data().id > id) {
+                id = doc.data().id;
+            }
+        })
 
-}
+        let object = req.body;
+        object.id = parseInt(id)+1;
+        db.collection('team').add(object).then(ref => {
+            res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
+        });
+    });
+
+};
 
 
 app.listen(config.aplication_port, function () {
-
-
     console.log(`Connected to port ${config.aplication_port}`);
 });
