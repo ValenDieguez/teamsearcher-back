@@ -298,8 +298,10 @@ app.delete('/matchDelete/:id', (req, res) => {
 });
 
 app.delete('/teamDelete/:id', (req, res) => {
+    console.log( req.params.id);
     db.collection('team').doc(req.params.id).delete()
         .then(ref => {
+            console.log("team borrado");
             res.json({message: 'Removed document with ID:' + ref.id});
         })
 });
@@ -320,7 +322,6 @@ let id=0;
             res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
         });
     });
-
 };
 
 
