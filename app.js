@@ -143,6 +143,36 @@ app.get('/player/:id', function (req, res) {
     })
 });
 
+app.get('/teamPlayers/:id', function (req, res) {
+    var paramsId = req.params.id;
+    var players = [];
+    db.collection('user_team').get().then(querySnapshot => {
+        var objects = [];
+        querySnapshot.forEach(doc => {
+            var object = doc.data();
+            objects.push(object);
+        });
+
+        for (var user_team of objects) {
+            if (user_team.team_id.toString() === paramsId) {
+                db.collection('player').get().then(querySnapshot => {
+                    var playersSelected = [];
+                    querySnapshot.forEach(doc => {
+                        var playerSelected = doc.data();
+                        playersSelected.push(playerSelected);
+                    });
+                    for (var item of playersSelected) {
+                        if (item.id === user_team.player) {
+                            players.push(item);
+                        }
+                    }
+                    res.send(players);
+            })
+        }
+
+    }})
+});
+
 app.get('/game/:id', function (req, res) {
     var paramsId = req.params.id;
     var correctItem = null;
@@ -314,11 +344,13 @@ let id=0;
             if (doc.data().id != null  && doc.data().id > id) {
                 id = doc.data().id;
             }
-        })
+        });
 
-        let object = req.body;
+        let object = req.body.data();
+        console.log(req.body.data());
         object.id = parseInt(id)+1;
-        db.collection('team').add(object).then(ref => {
+        req.body.setData(object);
+        db.collection('team').add(req.body.data).then(ref => {
             res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
         });
     });
