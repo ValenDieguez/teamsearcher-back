@@ -23,47 +23,19 @@ admin.initializeApp({
 })
 
 // Firebase ADO
-var db = admin.firestore()
-
-app.get('/getUsuario', (req, res) => {
-  admin
-    .auth()
-    .getUserByEmail('prueba@prueba.com')
-    .then(userRecord => {
-      res.status(200).send(userRecord)
-    })
-    .catch(error => {
-      res.status(409).send(error)
-    })
-})
-
-// Data access functions
+const db = admin.firestore()
 
 app.get('/teams', async function(_, res) {
-  const querySnapshot = await db.collection('team').get()
-  const data = querySnapshot.docs.map(doc => doc.data())
-  // const members = new Map()
-  // data.forEach(team => {
-  //   team.members.forEach(memberId => members.set(memberId, {}))
-  // })
-  // const membersToArray = [...members].map(member => member[0])
-  // const usersInfo = await Promise.all(
-  //   membersToArray.map(member => getUserInfo(member))
-  // )
-  // usersInfo.forEach(user => {
-  //   members.set(user.uid, {
-  //     uid: user.uid,
-  //     email: user.email,
-  //     user: user.displayName,
-  //     photoURL: user.photoURL,
-  //   })
-  // })
-  // const teams = data.map(team => {
-  //   const newMembers = team.members.map(userId => members.get(userId))
-  //   const newTeam = Object.assign({}, team, { members: newMembers })
-  //   return newTeam
-  // })
-  res.send(data)
+  const teamsRef = await db.collection('team').get()
+  const teams = teamsRef.docs.map(doc => ({ ...doc.data(), uid: doc.id }))
+  const usersRef = await db.collection('users').get()
+  const users = usersRef.docs.map(doc => doc.data())
+  const usersMap = new Map()
+  users.forEach(user => usersMap.set(user.uid, user))
+  teams.forEach(team => {
+    team.members = team.members.map(memberId => usersMap.get(memberId))
+  })
+  res.send(teams)
 })
 
 app.get('/team/:id', function(req, res) {
@@ -533,10 +505,6 @@ function getFollowingId(dataString, req, res) {
           res.json({ message: 'Added document with ID: ' + ref.id }) // ref.id devuelve el id
         })
     })
-}
-
-async function getUserInfo(userId) {
-  return await admin.auth().getUser(userId)
 }
 
 app.listen(config.aplication_port, function() {
