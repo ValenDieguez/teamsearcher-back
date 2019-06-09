@@ -410,6 +410,59 @@ app.delete('/deletePlayerTeam/:id/:userId', (req, res) => {
   }
 })
 
+
+app.post('/joinTeam/:id/:userId', (req, res) => {
+    try {
+        const paramsId = req.params.id
+        const userId = req.params.userId
+        db.collection('team')
+            .where('id', '==', parseInt(paramsId))
+            .get()
+            .then(querySnapshop => {
+                const data = querySnapshop.docs[0].data()
+                const editTeam = {
+                    ...data,
+                    ...{
+                        members: data.members.concat([userId]),
+                    },
+                }
+                db.collection('team').doc(querySnapshop.docs[0].id)
+                    .set(editTeam)
+                    .then(() => res.json(editTeam))
+                    .catch(e => res.status(500).json(e))
+            })
+            .catch(e => res.status(500).json(e))
+    } catch (e) {
+        res.status(500).json(e)
+    }
+})
+
+app.post('/joinMatch/:id/:userId', (req, res) => {
+    try {
+        const paramsId = req.params.id
+        const userId = req.params.userId
+        db.collection('match')
+            .where('id', '==', parseInt(paramsId))
+            .get()
+            .then(querySnapshop => {
+                const data = querySnapshop.docs[0].data()
+                const editTeam = {
+                    ...data,
+                    ...{
+                        players: data.players.concat([userId]),
+                    },
+                }
+                db.collection('match').doc(querySnapshop.docs[0].id)
+                    .set(editTeam)
+                    .then(() => res.json(editTeam))
+                    .catch(e => res.status(500).json(e))
+            })
+            .catch(e => res.status(500).json(e))
+    } catch (e) {
+        res.status(500).json(e)
+    }
+})
+
 app.delete('/mapDelete/:id', (req, res) => {
   db.collection('map')
     .doc(req.params.id)
