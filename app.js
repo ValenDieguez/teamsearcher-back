@@ -345,12 +345,8 @@ let id=0;
                 id = doc.data().id;
             }
         });
-
-        let object = req.body.data();
-        console.log(req.body.data());
-        object.id = parseInt(id)+1;
-        req.body.setData(object);
-        db.collection('team').add(req.body.data).then(ref => {
+        req.body.id = parseInt(id)+1;
+        db.collection(dataString).add(req.body).then(ref => {
             res.json({message: 'Added document with ID: ' + ref.id}); // ref.id devuelve el id
         });
     });
