@@ -7,6 +7,7 @@ var router = express.Router();
 const bodyParser = require('body-parser');
 var id = 0;
 
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cors());
@@ -173,6 +174,36 @@ app.get('/teamPlayers/:id', function (req, res) {
     }})
 });
 
+app.get('/matchPlayers/:id', function (req, res) {
+    var paramsId = req.params.id;
+    var players = [];
+    db.collection('match_player').get().then(querySnapshot => {
+        var objects = [];
+        querySnapshot.forEach(doc => {
+            var object = doc.data();
+            objects.push(object);
+        });
+
+        for (var match_player of objects) {
+            if (match_player.matchId.toString() === paramsId) {
+                db.collection('player').get().then(querySnapshot => {
+                    var playersSelected = [];
+                    querySnapshot.forEach(doc => {
+                        var playerSelected = doc.data();
+                        playersSelected.push(playerSelected);
+                    });
+                    for (var item of playersSelected) {
+                        if (item.id === match_player.playerId) {
+                            players.push(item);
+                        }
+                    }
+                    res.send(players);
+                })
+            }
+
+        }})
+});
+
 app.get('/game/:id', function (req, res) {
     var paramsId = req.params.id;
     var correctItem = null;
@@ -304,6 +335,31 @@ app.delete('/playerDelete/:id', (req, res) => {
         .then(ref => {
             res.json({message: 'Removed document with ID:' + ref.id});
         })
+});
+
+app.delete('/deletePlayerTeam/:id/:userId', (req, res) => {
+    try {
+        const paramsId = req.params.id;
+        const userId = req.params.userId;
+        db.collection('team').where('id', '==', paramsId).get()
+            .then(querySnapshop => {
+                const data = querySnapshop.docs[0].data();
+                const editTeam = {
+                    ...data,
+                    ...{
+                        members: data.members.filter(member => member !== userId)
+                    }
+                }
+                db.collection('team').set(editTeam)
+                    .then( () => res.json(editTeam))
+                    .catch((e) => res.status(500).json(e))
+            })
+            .catch((e) => res.status(500).json(e))
+    } catch (e) {
+        res.status(500).json(e)
+    }
+
+
 });
 
 app.delete('/mapDelete/:id', (req, res) => {
