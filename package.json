@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
-    "debugg": "node --inspect-brk app.js"
+    "debugg": "node --inspect-brk app.js",
+    "format": "npx prettier --write 'app.js'"
   },
-  "author": "valensito",
+  "author": "valen",
   "license": "ISC",
   "dependencies": {
     "@google-cloud/storage": "^2.5.0",
@@ -18,5 +19,8 @@
     "jsonwebtoken": "^8.5.1",
     "pg-promise": "^8.6.5",
     "vue-router": "^3.0.6"
+  },
+  "devDependencies": {
+    "prettier": "^1.18.2"
   }
 }
