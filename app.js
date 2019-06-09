@@ -375,7 +375,7 @@ app.delete('/deletePlayerTeam/:id/:userId', (req, res) => {
     const paramsId = req.params.id
     const userId = req.params.userId
     db.collection('team')
-      .where('id', '==', paramsId)
+      .where('id', '==', parseInt(paramsId))
       .get()
       .then(querySnapshop => {
         const data = querySnapshop.docs[0].data()
@@ -385,7 +385,7 @@ app.delete('/deletePlayerTeam/:id/:userId', (req, res) => {
             members: data.members.filter(member => member !== userId),
           },
         }
-        db.collection('team')
+        db.collection('team').doc(querySnapshop.docs[0].id)
           .set(editTeam)
           .then(() => res.json(editTeam))
           .catch(e => res.status(500).json(e))
@@ -395,32 +395,56 @@ app.delete('/deletePlayerTeam/:id/:userId', (req, res) => {
     res.status(500).json(e)
   }
 })
+app.delete('/deletePlayerMatch/:id/:userId', (req, res) => {
+    try {
+        const paramsId = req.params.id
+        const userId = req.params.userId
+        db.collection('match')
+            .where('id', '==', parseInt(paramsId))
+            .get()
+            .then(querySnapshop => {
+                const data = querySnapshop.docs[0].data()
+                const editTeam = {
+                    ...data,
+                    ...{
+                        players: data.players.filter(player => player !== userId),
+                    },
+                }
+                db.collection('match').doc(querySnapshop.docs[0].id)
+                    .set(editTeam)
+                    .then(() => res.json(editTeam))
+                    .catch(e => res.status(500).json(e))
+            })
+            .catch(e => res.status(500).json(e))
+    } catch (e) {
+        res.status(500).json(e)
+    }
+})
 
 app.post('/joinTeam/:id/:userId', (req, res) => {
-  try {
-    const paramsId = req.params.id
-    const userId = req.params.userId
-    db.collection('team')
-      .where('id', '==', parseInt(paramsId))
-      .get()
-      .then(querySnapshop => {
-        const data = querySnapshop.docs[0].data()
-        const editTeam = {
-          ...data,
-          ...{
-            members: data.members.concat([userId]),
-          },
-        }
+    try {
+        const paramsId = req.params.id
+        const userId = req.params.userId
         db.collection('team')
-          .doc(querySnapshop.docs[0].id)
-          .set(editTeam)
-          .then(() => res.json(editTeam))
-          .catch(e => res.status(500).json(e))
-      })
-      .catch(e => res.status(500).json(e))
-  } catch (e) {
-    res.status(500).json(e)
-  }
+            .where('id', '==', parseInt(paramsId))
+            .get()
+            .then(querySnapshop => {
+                const data = querySnapshop.docs[0].data()
+                const editTeam = {
+                    ...data,
+                    ...{
+                        members: data.members.concat([userId]),
+                    },
+                };
+                db.collection('team').doc(querySnapshop.docs[0].id)
+                    .set(editTeam)
+                    .then(() => res.json(editTeam))
+                    .catch(e => res.status(500).json(e))
+            })
+            .catch(e => res.status(500).json(e))
+    } catch (e) {
+        res.status(500).json(e)
+    }
 })
 
 app.post('/joinMatch/:id/:userId', (req, res) => {
@@ -509,4 +533,4 @@ function getFollowingId(dataString, req, res) {
 
 app.listen(config.aplication_port, function() {
   console.log(`Connected to port ${config.aplication_port}`)
-})
+});
