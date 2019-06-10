@@ -53,25 +53,37 @@ app.get('/team/:id', async function(req, res) {
   res.send(team)
 })
 
-app.get('/match/:id', function(req, res) {
-  var paramsId = req.params.id
-  var correctItem = null
-  db.collection('match')
-    .get()
-    .then(querySnapshot => {
-      var objects = []
-      querySnapshot.forEach(doc => {
-        var object = doc.data()
-        objects.push(object)
-      })
-
-      for (var item of objects) {
-        if (item.id.toString() === paramsId) {
-          correctItem = item
-        }
-      }
-      res.send(correctItem)
-    })
+app.get('/match/:id',async function(req, res) {
+  // var paramsId = req.params.id
+  // var correctItem = null
+  // db.collection('match')
+  //   .get()
+  //   .then(querySnapshot => {
+  //     var objects = []
+  //     querySnapshot.forEach(doc => {
+  //       var object = doc.data()
+  //       objects.push(object)
+  //     })
+  //
+  //     for (var item of objects) {
+  //       if (item.id.toString() === paramsId) {
+  //         correctItem = item
+  //       }
+  //     }
+  //     res.send(correctItem)
+  //   })
+    const id = parseInt(req.params.id, 10)
+    const querySnapshot = await db
+        .collection('match')
+        .where('id', '==', id)
+        .get()
+    const match = querySnapshot.docs[0].data()
+    const usersRef = await db.collection('users').get()
+    const users = usersRef.docs.map(doc => doc.data())
+    const usersMap = new Map()
+    users.forEach(user => usersMap.set(user.uid, user))
+    match.players = match.players.map(playerId => usersMap.get(playerId))
+    res.send(match)
 })
 
 app.get('/matchTeam/:idTeam', function(req, res) {
