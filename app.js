@@ -563,10 +563,10 @@ function getFollowingId(dataString, req, res) {
         })
 }
 
-app.use(express.static(path.join(__dirname, '../teamsearcher-front-2/dist')));
-app.get('*', function (req, res) {
-    res.sendFile(path.join(__dirname, '../teamsearcher-front-2/dist', 'index.html'));
-});
+// app.use(express.static(path.join(__dirname, '../teamsearcher-front-2/dist')));
+// app.get('*', function (req, res) {
+//     res.sendFile(path.join(__dirname, '../teamsearcher-front-2/dist', 'index.html'));
+// });
 
 app.listen(config.aplication_port, function () {
     console.log(`Connected to port ${config.aplication_port}`)
