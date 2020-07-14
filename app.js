@@ -116,31 +116,26 @@ app.get('/matches', async function (_, res) {
 
 
 app.get('/team/:id', async function (req, res) {
-
     const id = parseInt(req.params.id, 10)
-
     const querySnapshot = await db
-
         .collection('team')
-
         .where('id', '==', id)
-
         .get()
+        .then(() => {
+                const team = querySnapshot.docs[0].data()
+                const usersRef = db.collection('users').get()
 
-    const team = querySnapshot.docs[0].data()
+                const users = usersRef.docs.map(doc => doc.data())
 
-    const usersRef = await db.collection('users').get()
+                const usersMap = new Map()
 
-    const users = usersRef.docs.map(doc => doc.data())
+                users.forEach(user => usersMap.set(user.uid, user))
 
-    const usersMap = new Map()
+                team.members = team.members.map(memberId => usersMap.get(memberId))
 
-    users.forEach(user => usersMap.set(user.uid, user))
-
-    team.members = team.members.map(memberId => usersMap.get(memberId))
-
-    res.send(team)
-
+                res.send(team)
+            }
+        )
 })
 
 
