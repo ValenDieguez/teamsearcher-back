@@ -122,20 +122,21 @@ app.get('/team/:id', async function (req, res) {
         .where('id', '==', id)
         .get()
         .then((response) => {
-                const team = response.docs[0].data()
-                const usersRef = db.collection('users').get()
 
-                const users = usersRef.docs.map(doc => doc.data())
-
-                const usersMap = new Map()
-
-                users.forEach(user => usersMap.set(user.uid, user))
-
-                team.members = team.members.map(memberId => usersMap.get(memberId))
-
-                res.send(team)
             }
         )
+    const team = response.docs[0].data()
+    const usersRef = db.collection('users').get()
+
+    const users = usersRef.docs.map(doc => doc.data())
+
+    const usersMap = new Map()
+
+    users.forEach(user => usersMap.set(user.uid, user))
+
+    team.members = team.members.map(memberId => usersMap.get(memberId))
+
+    res.send(team)
 })
 
 
