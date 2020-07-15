@@ -121,8 +121,8 @@ app.get('/team/:id', async function (req, res) {
         .collection('team')
         .where('id', '==', id)
         .get()
-        .then(() => {
-                const team = querySnapshot.docs[0].data()
+        .then((response) => {
+                const team = response.docs[0].data()
                 const usersRef = db.collection('users').get()
 
                 const users = usersRef.docs.map(doc => doc.data())
@@ -137,7 +137,6 @@ app.get('/team/:id', async function (req, res) {
             }
         )
 })
-
 
 
 app.get('/match/:id', async function (req, res) {
